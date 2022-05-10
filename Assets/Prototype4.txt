@@ -1,0 +1,134 @@
+-----4.1 Watch Where You're Going
+
+In the Hierarchy, create 3D Object > Sphere 
+Rename it “Player”, reset its position and increase its XYZ scale to 1.5
+Add a RigidBody component to the Player 
+From the Library > Textures, drag a texture onto the sphere
+-
+--If we want the camera to rotate around the game in a smooth and
+cinematic fashion, we need to pin it to the center of the island with a focal point.
+rotasyonu deðiþtirince kamera dönsün diye.
+
+Create a new Empty Object and rename it “Focal Point”, 
+Reset its position to the origin (0, 0, 0), and make the Camera a child object of it
+RotateCamera Script-drag it focal point
+-
+Add forward force to the player
+
+Player” script, apply it to the Player
+-
+Move in direction of focal point(ileri geri gitmesini düzelttik player ýn.)
+
+in Player script
+private GameObject focalPoint;
+Start(): focalPoint = GameObject.Find("Focal Point");
+In the AddForce call, Replace Vector3.forward with focalPoint.transform.forward
+
+-----4.2 Follow The Player
+
+1.Add an enemy and a physics material: enemy ile player ý þarpýþtýrýnca itme yaptýrýyoruz.
+Enemy-Rg-Scale it.
+In a new “Physics Materials” folder, Create > Physics Material, then name it “Bouncy”
+Increase the Bounciness to “1”, change Bounce Combine to “Multiply”,
+APPLY it to your PLAYER and ENEMY, then test
+-
+Create enemy script to follow player:
+The enemy has the power to bounce the player away, 
+but only if the player approaches it. We must tell the enemy to follow the player’s position,
+chasing them around the island.
+
+“Enemy” script
+-
+Create a Spawn Manager for the enemy:
+Drag Enemy into the Prefabs folder to create a new Prefab, then delete Enemy from scene
+Create a new “Spawn Manager” object, attach a new “SpawnManager” script, and open it
+-
+Randomly generate spawn position:
+The enemy spawns at start,  but it always appears in the same spot.
+Using the familiar Random class, we can spawn the enemy in a random position.
+
+In SpawnManager.cs, in Start(), create new randomly generated X and Z
+Create a new Vector3 spawnPos variable with those random X and Z positions
+-
+Make a method return a spawn point:
+Vector3 yazdý öyle dönemsini istediði için.
+
+Create a new function Vector3 GenerateSpawnPosition() { }
+Copy and Paste the spawnPosX and spawnPosZ variables into the new method
+Add the line to return randomPos; in your new method
+Replace the code in your Instantiate call with your new function name: GenerateSpawnPosition() 
+
+------4.3 - PowerUp and CountDown
+
+From the Library, drag a Powerup object into the scene, rename it “Powerup” and edit its scale & position
+Add a Box Collider to the powerup, click Edit Collider to make sure it fits, then check the “Is Trigger” checkbox
+Create a new “Powerup” tag and apply it to the powerup
+Drag the Powerup into the Prefabs folder to create a new “Original Prefab”
+-
+Destroy powerup on collision:
+In PlayerController.cs, add a new OnTriggerEnter() method
+Add an if-statement that destroys other.CompareTag("Powerup") powerup on collision
+Create a new public bool hasPowerup; and set hasPowerup = true;  when you collide with the Powerup
+-
+Test for enemy and powerup:
+Create a new “Enemy” tag and apply it to the Enemy Prefab
+In PlayerController.cs, add the OnCollisionEnter() function
+Create the if-statement with the double-condition testing for enemy tag and hasPowerup boolean
+Create a Debug.Log to make sure it’s working
+-
+Apply extra knockback with powerup:
+In OnCollisionEnter() declare a new local variable to get the Enemy’s Rigidbody component 
+Declare a new variable to get the direction away from the player
+Add an impulse force to the enemy, using a new powerupStrength variable
+-
+Create Countdown Routine for powerup:
+dd a new IEnumerator PowerupCountdownRoutine () {}
+ Inside the PowerupCountdownRoutine, wait 7 seconds, then disable the powerup 
+When player collides with powerup, start the coroutine
+-
+Add a powerup indicator(gösterge):
+From the Library, drag a Powerup object into the scene, rename it “Powerup Indicator”, and edit its scale
+Uncheck the “Active” checkbox in the inspector
+In PlayerController.cs, declare a new public GameObject powerupIndicator variable, then assign the Powerup Indicator variable in the inspector
+When the player collides with the powerup, set the indicator object to Active, then set to Inactive when the powerup expires
+In Update(), set the Indicator position to the player’s position + an offset value
+
+----------4.4 - For-Loops For Waves
+
+Write a for-loop to spawn 3 enemies:
+
+In SpawnManager.cs, in Start(), replace single Instantiation with a for-loop that spawns 3 enemies
+Move the for-loop to a new void SpawnEnemyWave() function, then call that function from Start()
+-
+Give the for-loop a parameter:
+Right now, SpawnEnemyWave spawns exactly 3 enemies,
+but if we’re going to dynamically increase the number of enemies that spawn during gameplay,
+we need to be able to pass information to that method.
+
+Add a parameter int enemiesToSpawn to the SpawnEnemyWave function 
+Replace i < __ with i < enemiesToSpawn
+Add this new variable to the function call in Start(): SpawnEnemyWave(___); 
+-
+Destroy enemies if they fall off:
+In Enemy.cs, destroy the enemies if their position is less than a -Y value
+In SpawnManager.cs, declare a new public int enemyCount variable
+In Update(), set enemyCount = FindObjectsOfType<Enemy>().Length;
+Write the if-statement that if enemyCount == 0 then SpawnEnemyWave, then delete it from Start()
+-
+Increase enemyCount with waves:
+
+Declare a new public int waveNumber = 1;, then implement it in SpawnEnemyWave(waveNumber); 
+In the if-statement that tests if there are 0 enemies left, increment waveCount by 1 
+-
+Spawn Powerups with new waves:
+In SpawnManager.cs, declare a new public GameObject powerupPrefab variable, assign the prefab in the inspector and delete it from the scene
+In Start(), Instantiate a new Powerup
+Before the SpawnEnemyWave() call, Instantiate a new Powerup
+
+
+
+
+
+
+
+
